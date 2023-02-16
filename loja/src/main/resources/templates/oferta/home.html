@@ -1,0 +1,95 @@
+<html>
+	<head th:replace="~{base :: head}"></head> 
+	<body onload="onLoad()"> <!--carregará a função onLoad quando carregar o conteúdo do HTML do body -->
+		<div th:replace="~{base :: logo}"></div>
+		<!--Pereira requisição de /ofertas, gerará o view em HTML no lado do servidor  com o thymelief-->
+		<!--Segunda requisição de /api/pedidos/aguardando, gerará o JSON e o browser gerará o HTML com o vue -->
+		<div class="container" id="ofertas"> 
+			<div th:replace="~{base :: titulo('Pedidos')}"></div> 
+			<div class="card mb-3" v-for="pedido in pedidos"> <!--for de array pedidos usando variável pedido  -->
+				<div class="card-header alert-dark">{{pedido.nomeProduto}}</div> <!--acessa a lista no atributo nomeProduto-->
+				<div class="card-body"> 
+					<div class="row"> 
+						<div class="col-12 col-sm-8 mb-3"> 
+							<div class="mt-2">
+								<label>Comentário</label>
+								<textarea class="form-control" v-model=pedido.comentario></textarea>
+							</div>
+							<button v-if="pedido.ofertaEnviada" class="btn btn-success mt-3">Oferta efetuada</button> <!--se pedido.ofertaEnviada for verdadeiro, mostra o botão verde de oferta efetuada -->
+							<button v-else v-on:click="enviarOferta(pedido)" class="btn btn-secondary mt-3">Efetuar Oferta</button> <!--botão que dispara evento de onlick, chamando método passando os pedidos-->
+							<div class="row mt-3">
+								<div class="col-md-5">
+									Valor: <input v-bind:class="{'is-invalid':pedido.erros.valor !==''} class="form-control" v-model="pedido.valorNegociado"/></div> <!--ligação entre o que é digitado no input, linkando com o atributo valorNegociado  -->
+									<div v-if="pedido.erros.valor" class="invalid-feedback">Erros no nome do produto</div> <!--se o atributo erros no valor tiver preenchido(houver erros)  -->
+									{{pedido.erros.valor}} <!--imprime a mensagem de erro  -->
+								<div class="col-md-7">
+									Data da entrega: <input v-bind:class="{'is-invalid':pedido.erros.dataDaEntrega !==''} class="form-control" v-model="pedido.dataDaEntrega"/></div> <!--v-bind:class cria classe que se for inválido o erro de dataDaEntrega for preenchido com erro(se for preenchido o erro, ai adiciona a classe) -->
+									<div v-if="pedido.erros.dataDaEntrega" class="invalid-feedback">Erros na data do produto</div>
+									{{pedido.erros.dataDaEntrega}}
+							</div>
+							<div>Produto</div>
+							<div><a v-bind:href="pedido.urlProduto">{{pedido.urlProduto}}</a></div> <!--link com url do produto  -->
+							<div>Descrição</div>
+							<div>
+								<textarea class="form-control">{{pedido.descricao}}</textarea>
+							</div>
+						</div>
+						<div>
+							<div class="col-12 col-sm-4">
+								<img class="img-thumbnail" v-bind:src="pedido.urlImagem"/> 
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script>
+			//primeiro o HTML é carregado, volta para o navegador, e o navegador faz nova requisição GET com o aixos, devolvendo resposta com o JSON, inserindo os valores nos campos
+			function onLoad() { 
+				var app = new Vue({ //app recebe objeto js
+					el : '#ofertas', //pegará a tag com o id ofertas
+					data : { //o que está em data, é acessado pelo HTML, data tem o conteúdo da requisição
+						pedidos : [] //apresentará na tela o array de pedidos buscado na resposta da API com o aixos
+					},
+					mounted(){
+						aixos
+							.get('http://localhost:8080/api/pedidos/aguardando') //requisição GET para URL, buscando o conteúdo JSON, que está com o PedidosRest
+							.then(response => {
+								response.data.forEach(pedido =>{
+									pedido.ofertaEnviada = false; //inicializo na linha a variável ofertaEnviada
+									pedido.erros = {
+											valor: '',
+											dataDaEntrega: ''
+									}
+								}) 
+								this.pedidos = response.data //adiciona a resposta em pedidos(que está em data), com o conteúdo do JSON 
+							})
+					}, 
+					methods:{
+						enviarOferta: function(pedido){
+							pedido.erros = { //limpo os campos com erro depois de preenchido campo corretamente
+									valor: '',
+									dataDaEntrega: ''
+							};
+							aixos
+								.post('http://localhost:8080/api/ofertas', {
+									pedidoId: pedido.id, //atributos antes de : são de RequisicaoNovaOferta e atributos depois de : são os atributos que o usuário digitou neste formulário 
+									valor: pedido.valorNegociado,
+									dataDaEntrega: pedido.dataDaEntrega,
+									comentario: comentario
+								})
+							.then(response => pedido.ofertaEnviada = true)
+							.catch(error => {
+								error.response.data.errors.forEach(error => { //error é o objeto passado em (), response.data são os objetos que são retornados no JSON(podem ser vistos no network do navegador), errors é a lista de erros que vier
+									this.pedido.erros.field[error.field] = error.defaultMessage;//laço de repetição nos field dos atributos
+								})
+							})
+						}
+					}
+				});
+			}
+		</script>
+		<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script> <!--importação do vue-->
+		<script src="https://unpkg.com/axios/dist/axios.min.js"></script> <!--importação do axios-->
+	</body>
+</html>

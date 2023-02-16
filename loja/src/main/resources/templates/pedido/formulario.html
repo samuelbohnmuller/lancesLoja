@@ -1,0 +1,49 @@
+<html>
+	<head th:replace="~{base :: head}"></head>
+		<meta charset="UTF-8"/>
+	<body>
+		<div th:replace="~{base :: logo}"></div>
+		
+		<div class="container">
+			<div th:replace="~{base :: titulo('Novo Pedido')}"></div>
+		
+		<div class="card mt-3">
+		 <form th:action="@{/pedido/novo}" th:object="${requisicaoNovoPedido}" class="card-body" method="POST"> <!--formulário para campos de preenchimento(submete as informações preenchidas no endereço em método POST). Acesso aos objetos da classe RequisicaoNovoPedido pelo th:. @{} colocamos isso para inserir automáticamente a url que precisamos se ela tiver, será adicionada -->
+			<div class="form-group">
+				<label for="nomeProduto">Produto</label> <!--texto -->
+				<input th:field="*{nomeProduto}" th:errorclass="is-invalid" class="form-control" placeholder="nome do produto"/> <!--pelo th:field tenho acesso aos atributos do objeto requisicaoNovoPedido(não é necessário passar o name no html, já que na requisição já traz o nome do atributo da classe(ao preencher um atributo e a requisição voltar, já vira com o valor do objeto no campo))-->
+				<small>Informe o nome do produto</small> <!--texto pequeno  -->
+				<div class="invalid-feedback" th:errors="*{nomeProduto}"> <!--apresenta mensagem de erro do atributo no campo(erro buscado no @notblank) -->
+					Erros do nome do produto
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="urlImagem">Imagem</label> 
+				<input th:field="*{urlImagem}" th:errorclass="is-invalid" class="form-control" placeholder="URL da imagem"/> <!--placeholder é um texto paresentado quando campo não preenchido  -->
+				<small>Procure a imagem do produto</small>
+				<div class="invalid-feedback" th:errors="*{urlImagem}"> 
+					Erros da url da imagem
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="urlProduto">Url</label> 
+				<input th:field="*{urlProduto}" th:errorclass="is-invalid" class="form-control" placeholder="URL do produto"/> 
+				<small>Procure o endereço do produto</small> 
+				<div class="invalid-feedback" th:errors="*{urlProduto}"> 
+					Erros da url do produto
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="descricao">Descrição</label> 
+				<textarea th:field="*{descricao}" class="form-control" placeholder="adicione detalhes"/></textarea>
+			</div>
+			
+			<button class="btn btn-secondary" type="submit">Cadastrar</button> <!--submete informações preenchidas no formulário  -->
+		 </form>
+		</div>
+	   </div>
+	</body>
+</html>

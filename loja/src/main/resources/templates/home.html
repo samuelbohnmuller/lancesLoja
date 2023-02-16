@@ -1,0 +1,48 @@
+<html>
+	<head th:replace="~{base :: head}"></head> <!--importação de template pela página(base) e nome do template(head)  -->
+	<body>
+		<div th:replace="~{base :: logo}"></div>
+		
+		<div class="container"> <!--classe conteúdo centralizado e se move conforme expande -->
+			<div th:replace="~{base :: titulo('Pedidos')}"></div> <!--replicará o template, passando o nome dele como Meus Pedidos  -->
+			
+						<!-- <!-- <nav class="navbar navbar-expand-lg bg-light d-flex justify-content-between mb-3"> menu horizontal de navegação(classe menu bar com cor cinza de fundo e com afastamento entre os botões)
+							<div class="navbar-nav">
+								<a th:classappend="${status} == null ? 'active'" class="nav-item nav-link active" href="/home">Todos</a> links  que direcionam para uma página ao clicar
+								<a th:classappend="${status} == 'aguardando' ? 'active'" class="nav-item nav-link" href="/home/aguardando">Aguardando</a> classe traz espaçamento entre os textos
+								<a th:classappend="${status} == 'aprovado' ? 'active'" class="nav-item nav-link" href="/home/aprovado">Aprovado</a>
+								<a th:classappend="${status} == 'entregue' ? 'active'" class="nav-item nav-link" href="/home/entregue">Entregue</a>
+							</div>
+							<a href="/pedido/formulario"><button class="btn btn-outline-success my-2 my-sm-0">Novo</button> será direcionado para a URL de formalario 
+						</nav> --> 
+				
+			<div class="card mb-3" th:each="pedido : ${pedidos}"> <!--percorrerá a lista pedidos, com espaçamento a cada item na lista-->
+				<div class="card-header alert-dark" th:text="${pedido.nomeProduto}">Nome do produto</div> <!--substitui o texto pelo atributo da lista(caso o produto tenha o status aguardando(classe texto ficará dentro de bloco com cor) -->
+				
+				<div class="card-body"> <!--classe ajusta uma parte do conteúdo dentro do card  -->
+					<div class="row"> <!--classe para se aplicar as colunas col  -->
+						<div class="col-12 col-sm-8 mb-3"> <!--classe div que ocupa 12 colunas(em dispositivo pequeno(col) e col-sm quando pc) com espaço 3 do elemento de baixo  -->
+							<div class="row">
+								<div class="col-md-5">Valor: <span th:if="${pedido.valorNegociado} != null" th:text="${'R$ ' + #numbers.formatDecimal(pedido.valorNegociado,3,'POINT',2,'COMMA')}">200,99</span></div> <!--classe col-md para quando a tela fica média, ai elemento ocupa 6 colunas-->
+								<div class="col-md-7">Data da entrega: <span th:text="${#temporals.format(pedido.dataDaEntrega, 'dd/MM/yyyy')}">10/02/2020</span></div>
+							</div>
+							
+							<div>Produto</div>
+							<div><input class="form-control" th:value="${pedido.urlProduto}" value="url do Produto"/></div> <!--classe input mais arredonado  -->
+							
+							<div>Descrição</div>
+							<div>
+								<textarea class="form-control" th:text="${pedido.descricao}">Descrição do pedido</textarea>
+							</div>
+						</div>
+						<div>
+							<div class="col-12 col-sm-4">
+								<img class="img-thumbnail" th:src="${pedido.urlImagem}" src=""/> <!--classe ajusta com bordas a imagem com o conteúdo -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
